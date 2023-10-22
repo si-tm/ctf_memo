@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Private BBS</title>
+    <link rel="stylesheet" href="/bulma.min.css">
+  </head>
+  <body>
+
+    <div id="app">
+      <router-view></router-view>
+    </div>
+
+    <!-- Template engine protects us from XSS -->
+    <script id="home" type="text/x-template">
+      <section class="hero is-primary">
+        <div class="hero-body">
+          <div class="container">
+            <h1 class="title">Private BBS</h1>
+            <p class="subtitle">All threads can be read & written by only who know it's URL.</p>
+          </div>
+        </div>
+      </section>
+      <section class="section">
+        <div class="container">
+          <h2 class="title">New thread</h2>
+          <form @submit.prevent="createThread">
+            <div class="field">
+              <label class="label" for="newTitle">Title</label>
+              <div class="control">
+                <input id="newTitle" class="input" v-model="newTitle" :disabled="submitting">
+              </div>
+            </div>
+            <div class="field">
+              <div class="control">
+                <button id="submit" class="button is-primary" type="submit" :disabled="submitting">Submit</button>
+              </div>
+            </div>
+            <div v-if="message" class="notification is-danger is-light mt-1">{{message}}</div>
+          </form>
+        </div>
+      </section>
+      <section class="section">
+        <div class="container">
+          <h2 class="title">Your private threads</h2>
+          <template v-for="thread of threads">
+            <a :href="`/threads/${thread.id}`">
+              <div class="box mb-4">
+                <div class="title is-5">{{thread.title}}</div>
+                <div class="subtitle is-5 is-size-7 has-text-grey-lighter">{{thread.id}}</div>
+              </div>
+            </a>
+          </template>
+        </div>
+      </section>
+      <section class="section">
+        <div class="container">
+          <h2 class="title">Report</h2>
+          <p>If you find a inappropriate content, <router-link to="/report">report it</router-link>.</p>
+        </div>
+      </section>
+    </script>
+
+    <script id="thread" type="text/x-template">
+      <div v-if="!found">
+        <p>Not found</p>
+        <p><router-link to="/">Return to home</router-link></p>
+      </div>
+      <div v-else>
+        <section class="hero is-primary">
+          <div class="hero-body">
+            <div class="container">
+              <h1 class="title">{{title}}</h1>
+            </div>
+          </div>
+        </section>
+        <div class="container">
+          <nav class="breadcrumb mt-4" aria-label="breadcrumbs">
+            <ul>
+              <li><router-link to="/">Home</router-link></li>
+              <li><router-link :to="id">{{id}}</router-link></li>
+            </ul>
+          </nav>
+        </div>
+        <section class="section">
+          <div class="container">
+            <h2 class="title">New comment</h2>
+            <form @submit.prevent="createComment">
+              <div class="field">
+                <label class="label" for="newText">Text</label>
+                <div class="control">
+                  <textarea id="newText" class="textarea" v-model="newText" :disabled="submitting"></textarea>
+                </div>
+              </div>
+              <div class="field">
+                <div class="control">
+                  <button id="submit" class="button is-primary" type="submit" :disabled="submitting">Submit</button>
+                </div>
+              </div>
+              <div v-if="message" class="notification is-danger is-light mt-1">{{message}}</div>
+            </form>
+          </div>
+        </section>
+        <section class="section">
+          <div class="container">
+            <h2 class="title">Comments</h2>
+            <div v-for="comment of comments" :class="getCommentClass(comment)">
+              <template v-for="line of comment.text.split('\n')">
+                {{line}}<br>
+              </template>
+              <span class="is-size-7 has-text-grey-lighter">{{comment.id}}</span>
+            </div>
+          </div>
+        </section>
+        <section class="section">
+          <div class="container has-text-right">
+            <button id="delete" class="button is-small is-danger is-inverted" @click.prevent="deleteThread">
+              Delete this thread
+            </button>
+          </div>
+        </section>
+      </div>
+    </script>
+
+    <script id="report" type="text/x-template">
+      <section class="hero is-primary">
+        <div class="hero-body">
+          <div class="container">
+            <h1 class="title">Report</h1>
+          </div>
+        </div>
+      </section>
+      <div class="container">
+        <nav class="breadcrumb mt-4" aria-label="breadcrumbs">
+          <ul>
+            <li><router-link to="/">Home</router-link></li>
+            <li><router-link to="/report">report</router-link></li>
+          </ul>
+        </nav>
+      </div>
+      <section class="section">
+        <div class="container">
+          <div class="content">
+            <ul>
+              <li>An administrator is fanatical in security and will not attempt to connect to other than this origin.</li>
+              <ul>
+                <li>e.g. <code>&lt;img src="https://your-domain/"&gt;</code> is invalid.</li>
+              </ul>
+              <li>Proof of work is required before submission.</li>
+            </ul>
+          </div>
+          <form @submit.prevent="report">
+            <div class="field">
+              <label class="label" for="url">URL</label>
+              <div class="control">
+                <input id="newTitle" class="input" v-model="url" :placeholder="placeholder" :disabled="submitting">
+              </div>
+            </div>
+            <div class="field">
+              <div class="control">
+                <button id="submit" class="button is-primary" type="submit" :disabled="submitting">Submit</button>
+              </div>
+            </div>
+          </form>
+          <div v-if="message" class="mt-4">
+            <pre>{{message}}</pre>
+          </div>
+        </div>
+      </section>
+    </script>
+
+    <script src="/vue.global.js"></script>
+    <script src="/vue-router.global.js"></script>
+    <script src="/index.js"></script>
+  </body>
+</html>
