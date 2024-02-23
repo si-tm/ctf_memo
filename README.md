@@ -7,3 +7,7 @@
 
 ### memo
 - [notion of Markdown](https://qiita.com/tbpgr/items/989c6badefff69377da7)
+```
+docker build -t ctf_env .    
+docker run -it --rm -v "$(pwd):/home/user/" ctf_env
+```
